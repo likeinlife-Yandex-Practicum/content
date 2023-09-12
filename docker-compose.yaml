@@ -11,5 +11,7 @@ services:
     build: src
     container_name: fastapi_service
     restart: always
+    env_file:
+      - .env
     ports:
-      - "8080:80"
+      - "8000:80"

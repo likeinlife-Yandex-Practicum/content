@@ -1,15 +1,40 @@
-from typing import Union
-
+import uvicorn
+from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
+from redis.asyncio import Redis
 
-app = FastAPI()
+from api.v1 import films
+from core import config
+from db import elastic, redis
+
+app = FastAPI(
+    title=config.PROJECT_NAME,
+    docs_url='/api/openapi',
+    openapi_url='/api/openapi.json',
+    default_response_class=ORJSONResponse,
+)
 
 
-@app.get('/')
-def read_root():
-    return {'Hello': 'World'}
+@app.on_event('startup')
+async def startup():
+    redis.redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
+    elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
 
 
-@app.get('/items/{item_id}')
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {'item_id': item_id, 'q': q}
+@app.on_event('shutdown')
+async def shutdown():
+    await redis.redis.close()
+    await elastic.es.close()
+
+
+# Подключаем роутер к серверу, указав префикс /v1/films
+# Теги указываем для удобства навигации по документации
+app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
+
+if __name__ == '__main__':
+    uvicorn.run(
+        'main:app',
+        host='0.0.0.0',
+        port=80,
+    )
