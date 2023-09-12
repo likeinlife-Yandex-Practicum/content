@@ -1,0 +1,20 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: flake8
+        name: flake8 - linter
+        entry: flake8
+        language: python
+        types: [python]
+
+    -   id: yapf
+        name: yapf - formatter
+        entry: yapf
+        language: python
+        types: [python]
+
+    -   id: isort
+        name: isort - formatter
+        entry: isort 
+        language: python
+        types: [python]
