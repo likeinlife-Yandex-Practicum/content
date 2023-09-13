@@ -7,6 +7,7 @@ from redis.asyncio import Redis
 
 from db.elastic import get_elastic
 from db.redis import get_redis
+from enums import EsIndex
 from models.film import Film
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
@@ -28,14 +29,14 @@ class FilmService:
             if not film:
                 # Если он отсутствует в Elasticsearch, значит, фильма вообще нет в базе
                 return None
-            # Сохраняем фильм  в кеш
+            # Сохраняем фильм в кеш
             await self._put_film_to_cache(film)
 
         return film
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
-            doc = await self.elastic.get(index='movies', id=film_id)
+            doc = await self.elastic.get(index=EsIndex.MOVIES, id=film_id)
         except NotFoundError:
             return None
         return Film(**doc['_source'])
