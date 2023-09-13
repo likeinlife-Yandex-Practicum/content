@@ -1,5 +1,5 @@
 import orjson
-from pydantic import BaseModel as _BaseModel
+from pydantic import BaseModel
 
 
 def orjson_dumps(v, *, default):
@@ -7,7 +7,7 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 
-class BaseModel(_BaseModel):
+class OrjsonBaseModel(BaseModel):
     """Базовый класс для моделей."""
 
     class Config:

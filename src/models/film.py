@@ -1,7 +1,7 @@
-from models.base_model import BaseModel
+from models.shared.orjson_base_model import OrjsonBaseModel
 
 
-class Film(BaseModel):
+class Film(OrjsonBaseModel):
     id: str
     title: str
     description: str

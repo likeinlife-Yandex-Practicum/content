@@ -1,7 +1,7 @@
-from models.base_model import BaseModel
+from models.shared.orjson_base_model import OrjsonBaseModel
 
 
-class Genre(BaseModel):
+class Genre(OrjsonBaseModel):
     id: str
     genre: str
     description: str | None

@@ -1,6 +1,6 @@
-from models.base_model import BaseModel
+from models.shared.orjson_base_model import OrjsonBaseModel
 
 
-class Person(BaseModel):
+class Person(OrjsonBaseModel):
     id: str
     name: str
