@@ -1,7 +1,6 @@
 from models.shared.orjson_base_model import OrjsonBaseModel
 
 
-class Film(OrjsonBaseModel):
+class PersonEs(OrjsonBaseModel):
     id: str
-    title: str
-    description: str
+    name: str
