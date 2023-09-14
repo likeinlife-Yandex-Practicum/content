@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class Genre(BaseModel):
+class GenreResponse(BaseModel):
     id: str
     genre: str

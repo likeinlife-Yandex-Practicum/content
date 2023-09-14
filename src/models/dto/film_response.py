@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class Film(BaseModel):
+class FilmResponse(BaseModel):
     id: str
     title: str
