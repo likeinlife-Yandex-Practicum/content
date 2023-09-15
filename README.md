@@ -15,3 +15,9 @@ http://localhost:8000/api/openapi
 # Переменные окружения
 Смотреть .test.env
 
+# Дампы elastic
+ETL-процесс сделан в другом репозитории, т.к. это независимые сервисы.
+https://github.com/likeinlife/YA-ETL
+Дампы сделаны с помощью инструмента elasticsearch-dump:
+https://github.com/elasticsearch-dump/elasticsearch-dump
+
