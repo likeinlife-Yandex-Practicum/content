@@ -13,5 +13,66 @@ services:
     restart: always
     env_file:
       - .env
+    depends_on:
+      - elastic
+      - elastic_index_maker
+      - elastic_dump_loader_genre
+      - elastic_dump_loader_person
+      - elastic_dump_loader_movie
     ports:
       - "8000:80"
+
+  elastic:
+    image: elasticsearch:8.6.2
+    healthcheck:
+      test: curl -f 127.0.0.1:9200 || exit 1
+      interval: 10s
+      timeout: 10s
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+    ports:
+      - '9200:9200'
+
+  elastic_index_maker:
+    build: YA-ETL/src/es_index_maker
+    environment:
+      - HOST=${ES_HOST}
+      - PORT=${ES_PORT}
+    depends_on:
+      elastic:
+        condition: service_healthy
+
+  elastic_dump_loader_movie:
+    image: elasticdump/elasticsearch-dump
+    volumes:
+      - "./YA-ETL/dumps:/dumps"
+    command:
+      - --input=/dumps/movies_dump.json
+      - --output=http://host.docker.internal:9200/movie
+      - --type=data
+    depends_on:
+      - elastic_index_maker
+
+  elastic_dump_loader_person:
+    image: elasticdump/elasticsearch-dump
+    volumes:
+      - "./YA-ETL/dumps:/dumps"
+    command:
+      - --input=/dumps/person_dump.json
+      - --output=http://host.docker.internal:9200/person
+      - --type=data
+    depends_on:
+      - elastic_index_maker
+
+  elastic_dump_loader_genre:
+    image: elasticdump/elasticsearch-dump
+    volumes:
+      - "./YA-ETL/dumps:/dumps"
+    command:
+      - --input=/dumps/genre_dump.json
+      - --output=http://host.docker.internal:9200/genre
+      - --type=data
+    depends_on:
+      - elastic_index_maker
