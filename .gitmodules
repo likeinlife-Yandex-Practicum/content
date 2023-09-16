@@ -1,0 +1,3 @@
+[submodule "YA-ETL"]
+	path = YA-ETL
+	url = https://github.com/likeinlife/YA-ETL
