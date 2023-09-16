@@ -1,5 +1,18 @@
 version: '3'
 services:
+  api:
+    build: src
+    container_name: fastapi_service
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - elastic
+      - elastic_dump_loader
+      - redis
+    ports:
+      - "8000:80"
+
   redis:
     image: redis:latest
     container_name: redis_cache
@@ -7,11 +20,28 @@ services:
     ports:
       - "6379:6379"
 
-  api:
-    build: src
-    container_name: fastapi_service
-    restart: always
-    env_file:
-      - .env
+  elastic:
+    image: elasticsearch:8.6.2
+    healthcheck:
+      test: curl -f 127.0.0.1:9200 || exit 1
+      interval: 10s
+      timeout: 10s
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms500m -Xmx500m"
     ports:
-      - "8000:80"
+      - '9200:9200'
+
+  elastic_dump_loader:
+    image: elasticdump/elasticsearch-dump
+    environment:
+      - HOST=${ES_HOST}
+      - PORT=${ES_PORT}
+    volumes:
+      - "./YA-ETL/dumps:/dumps"
+      - "./load_elastic_dump.sh:/load_elastic_dump.sh"
+    command: /bin/sh -c "chmod +x load_elastic_dump.sh && ./load_elastic_dump.sh"
+    depends_on:
+      elastic:
+        condition: service_healthy
