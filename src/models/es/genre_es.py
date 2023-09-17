@@ -1,7 +1,10 @@
+import uuid
+
 from models.shared.orjson_base_model import OrjsonBaseModel
 
 
 class GenreEs(OrjsonBaseModel):
-    id: str
+    id: uuid.UUID
     genre: str
-    description: str | None
+    description: str | None = None
+    movies: list[dict] = []

@@ -1,3 +1,3 @@
-from .film_response import FilmResponse
-from .genre_response import GenreResponse
-from .person_response import PersonResponse
+from .film_response import FilmDetailResponse, FilmShortResponse
+from .genre_response import GenreDetailResponse, GenreShortResponse
+from .person_response import PersonDetailResponse, PersonShortResponse
