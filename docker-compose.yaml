@@ -8,7 +8,6 @@ services:
       - .env
     depends_on:
       - elastic
-      - elastic_dump_loader
       - redis
     ports:
       - "8000:80"
@@ -29,19 +28,11 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms500m -Xmx500m"
+      - "ES_JAVA_OPTS=-Xms1000m -Xmx1000m"
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
     ports:
       - '9200:9200'
 
-  elastic_dump_loader:
-    image: elasticdump/elasticsearch-dump
-    environment:
-      - HOST=${ELASTIC_HOST}
-      - PORT=${ELASTIC_PORT}
-    volumes:
-      - "./YA-ETL/dumps:/dumps"
-      - "./load_elastic_dump.sh:/load_elastic_dump.sh"
-    command: /bin/sh -c "chmod +x load_elastic_dump.sh && ./load_elastic_dump.sh"
-    depends_on:
-      elastic:
-        condition: service_healthy
+volumes:
+  elastic-data:

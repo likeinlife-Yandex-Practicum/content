@@ -3,3 +3,6 @@ up:
 
 down:
 	docker-compose down -v
+
+fill:
+	docker-compose -f docker-compose-fill.yaml up -d
