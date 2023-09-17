@@ -36,7 +36,7 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[FilmEs]:
         try:
-            doc = await self.elastic.get(index=EsIndex.MOVIES, id=film_id)
+            doc = await self.elastic.get(index=EsIndex.MOVIE, id=film_id)
         except NotFoundError:
             return None
         return FilmEs(**doc['_source'])
