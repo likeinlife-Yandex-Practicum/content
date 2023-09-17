@@ -1,10 +1,8 @@
 # Запуск/остановка
 - make up - запуск
-- make down - стоп
-
-## Альтернативный метод запуска/остановки
-- docker compose up -d
-- docker compose down
+- make fill - заполнить данными elasticsearch
+- make down - удалить созданные контейнеры
+- make downv - удалить созданные контейнеры, включая volumes
 
 # Адрес api
 http://localhost:8000
