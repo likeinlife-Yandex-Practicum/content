@@ -25,23 +25,29 @@ https://github.com/elasticsearch-dump/elasticsearch-dump
 
 ```
 {
-    id: string,
+    id: uuid,
     imdb_rating: float,
-    genre: [string],
+    genre: {
+        id: uuid,
+        name: str
+    },
     title: string,
     description: string,
-    director: [string],
-    actors_names: [string],
-    writers_names: [string],
+    directors: [
+        {
+            id: uuid,
+            name: string
+        }
+    ],
     actors: [
         {
-            id: string,
+            id: uuid,
             name: string
         }
     ],
     writers: [
         {
-            id: string,
+            id: uuid,
             name: string
         }
     ]
@@ -54,12 +60,12 @@ https://github.com/elasticsearch-dump/elasticsearch-dump
 
 ```
 {
-    id: string,
+    id: uuid,
     name: string,
     description: string,
     movies: [
         {
-            id: string,
+            id: uuid,
             title: string,
             imdb_rating: float
         }
@@ -73,13 +79,13 @@ https://github.com/elasticsearch-dump/elasticsearch-dump
 
 ```
 {
-    id: string,
+    id: uuid,
     name: string,
     movies: [
         {
-            id: string,
+            id: uuid,
             title: string,
-            role: string
+            roles: [string]
         }
     ]
 }
