@@ -36,8 +36,8 @@ services:
   elastic_dump_loader:
     image: elasticdump/elasticsearch-dump
     environment:
-      - HOST=${ES_HOST}
-      - PORT=${ES_PORT}
+      - HOST=${ELASTIC_HOST}
+      - PORT=${ELASTIC_PORT}
     volumes:
       - "./YA-ETL/dumps:/dumps"
       - "./load_elastic_dump.sh:/load_elastic_dump.sh"
