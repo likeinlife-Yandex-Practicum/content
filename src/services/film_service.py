@@ -19,6 +19,51 @@ class FilmService:
         self.redis = redis
         self.elastic = elastic
 
+    async def get_film_list(
+            self,
+            genre: str | None,
+            query: str | None,
+            sort: str | None,
+            size: int,
+            offset: int
+    ) -> Optional[list[dict]]:
+        body = {
+            'size': size,
+            'from': offset
+        }
+        if query:
+            match = {'match': {'title': query}}
+        else:
+            match = {'match_all': {}}
+
+        body.update({'query': {'bool': {'must': [match]}}})
+
+        if genre:
+            body['query']['bool'].update({
+                'filter': {
+                    'nested': {
+                        'path': 'genre',
+                        'query':
+                            {'term': {
+                                'genre.id': genre
+                            }
+                            }
+                    }
+                }
+            })
+
+        if sort:
+            order = 'desc' if sort.startswith('-') else 'asc'
+            sort = sort.lstrip('-')
+            sorting = [{sort: {'order': order}}]
+            body.update({'sort': sorting})
+
+        data = await self.elastic.search(
+            index=EsIndex.MOVIE,
+            body=body,
+        )
+        return [item['_source'] for item in data['hits']['hits']]
+
     # get_by_id возвращает объект фильма. Он опционален, так как фильм может отсутствовать в базе
     async def get_by_id(self, film_id: str) -> Optional[FilmEs]:
         # Пытаемся получить данные из кеша, потому что оно работает быстрее
