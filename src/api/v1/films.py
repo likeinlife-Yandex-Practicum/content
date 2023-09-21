@@ -28,7 +28,11 @@ async def film_search(
     if not _film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
 
-    return [FilmShortResponse(**film) for film in _film_list]
+    return [FilmShortResponse(
+        id=film.id,
+        title=film.title,
+        imdb_rating=film.imdb_rating
+    ) for film in _film_list]
 
 
 @router.get(
@@ -74,4 +78,8 @@ async def film_list(
     if not _film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
 
-    return [FilmShortResponse(**film) for film in _film_list]
+    return [FilmShortResponse(
+        id=film.id,
+        title=film.title,
+        imdb_rating=film.imdb_rating
+    ) for film in _film_list]

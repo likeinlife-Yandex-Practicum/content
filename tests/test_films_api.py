@@ -13,6 +13,7 @@ def test_filter_by_genre_param(client):
         'genre': '9c91a5b2-eb70-4889-8581-ebe427370edd',
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 23
@@ -24,6 +25,7 @@ def test_filter_by_genre_param_empty_result(client):
         'genre': 'f920f5ed-00ea-4431-ad87-e6be07af27be',
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 404
     result = response.json()
     assert result == {'detail': 'films not found'}
@@ -36,6 +38,7 @@ def test_filter_by_genre_param_with_sorting_desc(client):
         'sort': '-imdb_rating',
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 23
@@ -48,6 +51,7 @@ def test_filter_by_genre_param_with_sorting_asc(client):
         'sort': 'imdb_rating',
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 23
@@ -60,6 +64,7 @@ def test_filter_by_genre_param_with_page_size(client):
         'page_size': 5,
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 5
@@ -73,6 +78,7 @@ def test_filter_by_genre_param_with_page_number(client):
         'page_number': 3,
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 10
@@ -87,6 +93,7 @@ def test_filter_by_genre_param_with_all_params(client):
         'page_number': 1,
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 15
@@ -105,6 +112,7 @@ def test_filter_by_genre_sort_param_validation(client, sort_value):
         'sort': sort_value,
     }
     response = client.get(f'{ENDPOINT}', params=payload)
+
     assert response.status_code == 422
     result = response.json()
     assert result == {'detail': [{'ctx': {'pattern': '^-?imdb_rating$'}, 'loc': ['query', 'sort'],
@@ -118,6 +126,7 @@ def test_search_film_by_title(client):
         'query': 'Star',
     }
     response = client.get(f'{ENDPOINT}/search', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 50
@@ -129,6 +138,7 @@ def test_search_film_by_title_empty_result(client):
         'query': 'asdlkjsaopfj222as',
     }
     response = client.get(f'{ENDPOINT}/search', params=payload)
+
     assert response.status_code == 404
     result = response.json()
     assert result == {'detail': 'films not found'}
@@ -141,6 +151,7 @@ def test_search_film_by_title_with_page_size(client):
         'page_size': 8,
     }
     response = client.get(f'{ENDPOINT}/search', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 8
@@ -154,6 +165,7 @@ def test_search_film_by_title_with_page_number(client):
         'page_number': 2,
     }
     response = client.get(f'{ENDPOINT}/search', params=payload)
+
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
     assert len(result) == 8
@@ -163,6 +175,7 @@ def test_get_film_by_id(client):
     """Тестирование получения детальной информации о фильме."""
     film_id = 'cddf9b8f-27f9-4fe9-97cb-9e27d4fe3394'
     response = client.get(f'{ENDPOINT}/{film_id}')
+
     assert response.status_code == 200
     result = response.json()
     assert result == {'id': 'cddf9b8f-27f9-4fe9-97cb-9e27d4fe3394',
@@ -184,3 +197,13 @@ def test_get_film_by_id(client):
                                   {'id': 'a5a8f573-3cee-4ccc-8a2b-91cb9f55250a', 'name': 'George Lucas'},
                                   {'id': 'cec00f0e-200b-4b48-9ed1-2f8fc3c67427', 'name': 'Michael Arndt'}],
                       'directors': [{'id': 'a1758395-9578-41af-88b8-3f9456e6d938', 'name': 'J.J. Abrams'}]}
+
+
+def test_get_film_by_id_empty_result(client):
+    """Тестирование получения детальной информации о фильме. Пустой результат поиска."""
+    film_id = 'be823372-d799-4a87-a53c-bff76bb24c7b'
+    response = client.get(f'{ENDPOINT}/{film_id}')
+
+    assert response.status_code == 404
+    result = response.json()
+    assert result == {'detail': 'film not found'}
