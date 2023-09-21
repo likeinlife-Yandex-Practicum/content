@@ -31,7 +31,7 @@ async def film_search(
     return [FilmShortResponse(
         id=film.id,
         title=film.title,
-        imdb_rating=film.imdb_rating
+        imdb_rating=film.imdb_rating,
     ) for film in _film_list]
 
 
@@ -41,9 +41,12 @@ async def film_search(
     summary='Детальная информация о фильме',
     description='Получение детальной информации о фильме',
     response_description='Детальная информация о фильме',
-    tags=['Фильмы']
+    tags=['Фильмы'],
 )
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetailResponse:
+async def film_details(
+        film_id: str,
+        film_service: FilmService = Depends(get_film_service),
+) -> FilmDetailResponse:
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
@@ -60,13 +63,14 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
     )
 
 
-@router.get('/',
-            response_model=list[FilmShortResponse],
-            summary='Список фильмов',
-            description='Список фильмов с пагинацией, фильтрацией по жанрам и сортировкой рейтингу',
-            response_description='Список фильмов с id, названием и рейтингом',
-            tags=['Фильмы']
-            )
+@router.get(
+    '/',
+    response_model=list[FilmShortResponse],
+    summary='Список фильмов',
+    description='Список фильмов с пагинацией, фильтрацией по жанрам и сортировкой рейтингу',
+    response_description='Список фильмов с id, названием и рейтингом',
+    tags=['Фильмы'],
+)
 async def film_list(
         genre: str | None = None,
         sort: Annotated[str | None, Query(regex='^-?imdb_rating$')] = '-imdb_rating',
@@ -81,5 +85,5 @@ async def film_list(
     return [FilmShortResponse(
         id=film.id,
         title=film.title,
-        imdb_rating=film.imdb_rating
+        imdb_rating=film.imdb_rating,
     ) for film in _film_list]

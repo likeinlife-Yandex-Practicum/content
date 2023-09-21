@@ -11,6 +11,7 @@ repos:
         name: isort - formatter
         entry: isort 
         language: python
+        args: ['--show-config']
         types: [python]
 
     -   id: flake8

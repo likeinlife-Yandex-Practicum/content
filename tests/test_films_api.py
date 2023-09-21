@@ -16,7 +16,7 @@ def test_filter_by_genre_param(client):
 
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
-    assert len(result) == 23
+    assert len(result) == 24
 
 
 def test_filter_by_genre_param_empty_result(client):
@@ -41,7 +41,7 @@ def test_filter_by_genre_param_with_sorting_desc(client):
 
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
-    assert len(result) == 23
+    assert len(result) == 24
 
 
 def test_filter_by_genre_param_with_sorting_asc(client):
@@ -54,7 +54,7 @@ def test_filter_by_genre_param_with_sorting_asc(client):
 
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
-    assert len(result) == 23
+    assert len(result) == 24
 
 
 def test_filter_by_genre_param_with_page_size(client):
@@ -81,7 +81,7 @@ def test_filter_by_genre_param_with_page_number(client):
 
     assert response.status_code == 200
     result = parse_obj_as(list[FilmShortResponse], response.json())
-    assert len(result) == 10
+    assert len(result) == 4
 
 
 def test_filter_by_genre_param_with_all_params(client):
@@ -115,9 +115,16 @@ def test_filter_by_genre_sort_param_validation(client, sort_value):
 
     assert response.status_code == 422
     result = response.json()
-    assert result == {'detail': [{'ctx': {'pattern': '^-?imdb_rating$'}, 'loc': ['query', 'sort'],
-                                  'msg': 'string does not match regex "^-?imdb_rating$"',
-                                  'type': 'value_error.str.regex'}]}
+    assert result == {
+        'detail': [{
+            'ctx': {
+                'pattern': '^-?imdb_rating$'
+            },
+            'loc': ['query', 'sort'],
+            'msg': 'string does not match regex "^-?imdb_rating$"',
+            'type': 'value_error.str.regex'
+        }]
+    }
 
 
 def test_search_film_by_title(client):
@@ -178,25 +185,56 @@ def test_get_film_by_id(client):
 
     assert response.status_code == 200
     result = response.json()
-    assert result == {'id': 'cddf9b8f-27f9-4fe9-97cb-9e27d4fe3394',
-                      'title': 'Star Wars: Episode VII - The Force Awakens', 'imdb_rating': 7.9,
-                      'description': '30 years after the defeat of Darth Vader and the Empire, Rey, '
-                                     'a scavenger from the planet Jakku, finds a BB-8 droid that knows '
-                                     'the whereabouts of the long lost Luke Skywalker. Rey, as well as a '
-                                     'rogue stormtrooper and two smugglers, are thrown into the middle of a '
-                                     'battle between the Resistance and the daunting legions of the First Order.',
-                      'genre': [{'id': '120a21cf-9097-479e-904a-13dd7198c1dd', 'name': 'Adventure'},
-                                {'id': '3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff', 'name': 'Action'},
-                                {'id': '6c162475-c7ed-4461-9184-001ef3d9f26e', 'name': 'Sci-Fi'}],
-                      'actors': [{'id': '26e83050-29ef-4163-a99d-b546cac208f8', 'name': 'Mark Hamill'},
-                                 {'id': '2d6f6284-13ce-4d25-9453-c4335432c116', 'name': 'Adam Driver'},
-                                 {'id': '5b4bf1bc-3397-4e83-9b17-8b10c6544ed1', 'name': 'Harrison Ford'},
-                                 {'id': 'b5d2b63a-ed1f-4e46-8320-cf52a32be358', 'name': 'Carrie Fisher'}],
-                      'writers': [{'id': '3217bc91-bcfc-44eb-a609-82d228115c50', 'name': 'Lawrence Kasdan'},
-                                  {'id': 'a1758395-9578-41af-88b8-3f9456e6d938', 'name': 'J.J. Abrams'},
-                                  {'id': 'a5a8f573-3cee-4ccc-8a2b-91cb9f55250a', 'name': 'George Lucas'},
-                                  {'id': 'cec00f0e-200b-4b48-9ed1-2f8fc3c67427', 'name': 'Michael Arndt'}],
-                      'directors': [{'id': 'a1758395-9578-41af-88b8-3f9456e6d938', 'name': 'J.J. Abrams'}]}
+    assert result == {
+        'id': 'cddf9b8f-27f9-4fe9-97cb-9e27d4fe3394',
+        'title': 'Star Wars: Episode VII - The Force Awakens',
+        'imdb_rating': 7.9,
+        'description': '30 years after the defeat of Darth Vader and the Empire, Rey, '
+                       'a scavenger from the planet Jakku, finds a BB-8 droid that knows '
+                       'the whereabouts of the long lost Luke Skywalker. Rey, as well as a '
+                       'rogue stormtrooper and two smugglers, are thrown into the middle of a '
+                       'battle between the Resistance and the daunting legions of the First Order.',
+        'genre': [{
+            'id': '120a21cf-9097-479e-904a-13dd7198c1dd',
+            'name': 'Adventure'
+        }, {
+            'id': '3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff',
+            'name': 'Action'
+        }, {
+            'id': '6c162475-c7ed-4461-9184-001ef3d9f26e',
+            'name': 'Sci-Fi'
+        }],
+        'actors': [{
+            'id': '26e83050-29ef-4163-a99d-b546cac208f8',
+            'name': 'Mark Hamill'
+        }, {
+            'id': '2d6f6284-13ce-4d25-9453-c4335432c116',
+            'name': 'Adam Driver'
+        }, {
+            'id': '5b4bf1bc-3397-4e83-9b17-8b10c6544ed1',
+            'name': 'Harrison Ford'
+        }, {
+            'id': 'b5d2b63a-ed1f-4e46-8320-cf52a32be358',
+            'name': 'Carrie Fisher'
+        }],
+        'writers': [{
+            'id': '3217bc91-bcfc-44eb-a609-82d228115c50',
+            'name': 'Lawrence Kasdan'
+        }, {
+            'id': 'a1758395-9578-41af-88b8-3f9456e6d938',
+            'name': 'J.J. Abrams'
+        }, {
+            'id': 'a5a8f573-3cee-4ccc-8a2b-91cb9f55250a',
+            'name': 'George Lucas'
+        }, {
+            'id': 'cec00f0e-200b-4b48-9ed1-2f8fc3c67427',
+            'name': 'Michael Arndt'
+        }],
+        'directors': [{
+            'id': 'a1758395-9578-41af-88b8-3f9456e6d938',
+            'name': 'J.J. Abrams'
+        }]
+    }
 
 
 def test_get_film_by_id_empty_result(client):

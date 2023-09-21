@@ -14,6 +14,16 @@ class PersonFilmsModel(BaseModel):
     """Фильмы, в которых человек принимал участие."""
 
     id: uuid.UUID
+    title: str
+    roles: list[str]
+
+
+class PersonFilmsResponse(BaseModel):
+    """Фильмы, в которых человек принимал участие."""
+
+    id: uuid.UUID
+    title: str
+    imdb_rating: float
     roles: list[str]
 
 

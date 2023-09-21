@@ -10,9 +10,9 @@ from db.elastic import get_elastic
 from db.redis import get_redis
 from enums import EsIndex
 from models.es.film_es import FilmEs
-from services.base_service import BaseService
 
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+from .base_service import BaseService
+from .constants import CACHE_EXPIRE_IN_SECONDS
 
 
 class FilmService(BaseService):
@@ -21,18 +21,18 @@ class FilmService(BaseService):
         super().__init__(redis, elastic)
 
     async def get_film_list(
-            self,
-            genre: str | None,
-            query: str | None,
-            sort: str | None,
-            size: int,
-            offset: int
+        self,
+        genre: str | None,
+        query: str | None,
+        sort: str | None,
+        size: int,
+        page: int,
     ) -> list[FilmEs] | None:
-        redis_key = self.generate_redis_key(genre, query, sort, sort, size, offset)
+        redis_key = self.generate_redis_key(genre, query, sort, size, page)
 
         body = {
             'size': size,
-            'from': offset
+            'from': (page - 1) * size,
         }
         if query:
             match = {'match': {'title': query}}
@@ -42,18 +42,17 @@ class FilmService(BaseService):
         body.update({'query': {'bool': {'must': [match]}}})
 
         if genre:
-            body['query']['bool'].update({
-                'filter': {
+            body['query']['bool'].update(
+                {'filter': {
                     'nested': {
                         'path': 'genre',
-                        'query':
-                            {'term': {
+                        'query': {
+                            'term': {
                                 'genre.id': genre
                             }
-                            }
+                        }
                     }
-                }
-            })
+                }})
 
         if sort:
             order = 'desc' if sort.startswith('-') else 'asc'
@@ -64,27 +63,23 @@ class FilmService(BaseService):
         # Пытаемся получить данные из кеша, потому что оно работает быстрее
         film_list = await self._get_film_list_from_cache(redis_key)
         if not film_list:
-            film_list = await self.elastic.search(
+            film_es_response = await self.elastic.search(
                 index=EsIndex.MOVIE,
                 body=body,
             )
-            if not film_list:
+            if not film_es_response:
                 return None
-            film_list = [FilmEs(**item['_source']) for item in film_list['hits']['hits']]
+            film_list = [FilmEs(**item['_source']) for item in film_es_response['hits']['hits']]
             await self._put_film_list_to_cache(redis_key, film_list)
         return film_list
 
-    # get_by_id возвращает объект фильма. Он опционален, так как фильм может отсутствовать в базе
     async def get_by_id(self, film_id: str) -> FilmEs | None:
-        # Пытаемся получить данные из кеша, потому что оно работает быстрее
+        """Получить фильм по айди."""
         film = await self._film_from_cache(film_id)
         if not film:
-            # Если фильма нет в кеше, то ищем его в Elasticsearch
             film = await self._get_film_from_elastic(film_id)
             if not film:
-                # Если он отсутствует в Elasticsearch, значит, фильма вообще нет в базе
                 return None
-            # Сохраняем фильм в кеш
             await self._put_film_to_cache(film)
 
         return film
@@ -106,7 +101,7 @@ class FilmService(BaseService):
 
     async def _put_film_to_cache(self, film: FilmEs):
         """Сохранить фильм в кэш."""
-        await self.redis.set(str(film.id), film.json(), FILM_CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(str(film.id), film.json(), CACHE_EXPIRE_IN_SECONDS)
 
     async def _get_film_list_from_cache(self, redis_key: str) -> list[FilmEs] | None:
         """Получить список фильмов из кэша."""
@@ -122,7 +117,7 @@ class FilmService(BaseService):
         await self.redis.set(
             redis_key,
             orjson.dumps(jsonable_encoder(film_list)),
-            FILM_CACHE_EXPIRE_IN_SECONDS
+            CACHE_EXPIRE_IN_SECONDS,
         )
 
 

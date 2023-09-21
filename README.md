@@ -85,6 +85,7 @@ https://github.com/elasticsearch-dump/elasticsearch-dump
         {
             id: uuid,
             title: string,
+            imdb_rating: float,
             roles: [string]
         }
     ]
