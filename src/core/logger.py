@@ -8,57 +8,59 @@ LOG_DEFAULT_HANDLERS = [
 # https://docs.python.org/3/howto/logging.html
 # https://docs.python.org/3/howto/logging-cookbook.html
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': LOG_FORMAT
+
+def get_logging_settings(logging_level: str, console_logging_level: str):
+    return {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': LOG_FORMAT
+            },
+            'default': {
+                '()': 'uvicorn.logging.DefaultFormatter',
+                'fmt': '%(levelprefix)s %(message)s',
+                'use_colors': None,
+            },
+            'access': {
+                '()': 'uvicorn.logging.AccessFormatter',
+                'fmt': "%(levelprefix)s %(client_addr)s - '%(request_line)s' %(status_code)s",
+            },
         },
-        'default': {
-            '()': 'uvicorn.logging.DefaultFormatter',
-            'fmt': '%(levelprefix)s %(message)s',
-            'use_colors': None,
+        'handlers': {
+            'console': {
+                'level': console_logging_level,
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose',
+            },
+            'default': {
+                'formatter': 'default',
+                'class': 'logging.StreamHandler',
+                'stream': 'ext://sys.stdout',
+            },
+            'access': {
+                'formatter': 'access',
+                'class': 'logging.StreamHandler',
+                'stream': 'ext://sys.stdout',
+            },
         },
-        'access': {
-            '()': 'uvicorn.logging.AccessFormatter',
-            'fmt': "%(levelprefix)s %(client_addr)s - '%(request_line)s' %(status_code)s",
+        'loggers': {
+            '': {
+                'handlers': LOG_DEFAULT_HANDLERS,
+                'level': logging_level,
+            },
+            'uvicorn.error': {
+                'level': logging_level,
+            },
+            'uvicorn.access': {
+                'handlers': ['access'],
+                'level': logging_level,
+                'propagate': False,
+            },
         },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
+        'root': {
+            'level': logging_level,
             'formatter': 'verbose',
-        },
-        'default': {
-            'formatter': 'default',
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stdout',
-        },
-        'access': {
-            'formatter': 'access',
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stdout',
-        },
-    },
-    'loggers': {
-        '': {
             'handlers': LOG_DEFAULT_HANDLERS,
-            'level': 'INFO',
         },
-        'uvicorn.error': {
-            'level': 'INFO',
-        },
-        'uvicorn.access': {
-            'handlers': ['access'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
-    'root': {
-        'level': 'INFO',
-        'formatter': 'verbose',
-        'handlers': LOG_DEFAULT_HANDLERS,
-    },
-}
+    }

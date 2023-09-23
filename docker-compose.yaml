@@ -7,8 +7,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - elastic
-      - redis
+      elastic:
+        condition: service_healthy
+      redis:
+        condition: service_started
     expose:
       - "8000"
 
@@ -29,8 +31,8 @@ services:
     image: redis:latest
     container_name: redis_cache
     restart: always
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
 
   elastic:
     image: elasticsearch:8.6.2
@@ -44,8 +46,8 @@ services:
       - "ES_JAVA_OPTS=-Xms1000m -Xmx1000m"
     volumes:
       - elastic-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
+    expose:
+      - "9200"
 
 volumes:
   elastic-data:
