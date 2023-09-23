@@ -23,10 +23,10 @@
 - pytest -v -l ./tests
 
 # Адрес api
-http://localhost:8000
+http://localhost:80
 
 ## Адрес для проверки удачного запуска
-http://localhost:8000/api/openapi
+http://localhost:80/api/openapi
 
 # Переменные окружения
 Смотреть .env.example
