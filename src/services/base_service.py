@@ -1,16 +1,17 @@
 import hashlib
 from typing import Any
 
-from elasticsearch import AsyncElasticsearch
 from redis.asyncio import Redis
+
+from .search_service import AsyncElasticService
 
 
 class BaseService:
     """Базовый класс сервисов."""
 
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
+    def __init__(self, redis: Redis, elastic_service: AsyncElasticService):
         self.redis = redis
-        self.elastic = elastic
+        self.elastic_service = elastic_service
 
     @staticmethod
     def generate_redis_key(*args: Any) -> str:

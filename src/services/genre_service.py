@@ -1,15 +1,14 @@
 from functools import lru_cache
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from fastapi.encoders import jsonable_encoder
-from orjson import orjson
+from orjson import orjson  # type: ignore
 from redis.asyncio import Redis
 
-from db.elastic import get_elastic
 from db.redis import get_redis
 from enums import EsIndex
 from models.es.genre_es import GenreEs
+from services.search_service import AsyncElasticService, get_elastic_service
 
 from .base_service import BaseService
 from .constants import CACHE_EXPIRE_IN_SECONDS
@@ -17,37 +16,35 @@ from .constants import CACHE_EXPIRE_IN_SECONDS
 
 class GenreService(BaseService):
 
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        super().__init__(redis, elastic)
-
-    async def get_genre_list(self) -> list[GenreEs]:
+    async def get_genre_list(self) -> list[GenreEs] | None:
         redis_key = self.generate_redis_key('genre_list')
 
-        genre_list = await self._get_genre_list_from_cache(redis_key)
-        if not genre_list:
-            genre_es_response = await self.elastic.search(index=EsIndex.GENRE, size=1000)
-            if not genre_es_response:
-                return None
-            genre_list = [GenreEs(**item['_source']) for item in genre_es_response['hits']['hits']]
-            await self._put_genre_list_to_cache(redis_key, genre_list)
+        from_cache = await self._get_genre_list_from_cache(redis_key)
+        if from_cache:
+            return from_cache
+
+        genre_es_response = await self.elastic_service.get_list(index=EsIndex.GENRE, size=100)
+        if not genre_es_response:
+            return None
+
+        genre_list = [GenreEs(**item) for item in genre_es_response]
+        await self._put_genre_list_to_cache(redis_key=redis_key, genre_list=genre_list)
         return genre_list
 
     async def get_by_id(self, genre_id: str) -> GenreEs | None:
-        genre = await self._get_genre_from_cache(genre_id)
-        if not genre:
-            genre = await self._get_genre_from_elastic(genre_id)
-            if not genre:
-                return None
-            await self._put_genre_to_cache(genre)
+        from_cache = await self._get_genre_from_cache(genre_id)
+        if from_cache:
+            return from_cache
+
+        from_es = await self.elastic_service.get_by_id(_id=genre_id, index=EsIndex.GENRE)
+        if not from_es:
+            return None
+
+        genre = GenreEs(**from_es)
+
+        await self._put_genre_to_cache(genre)
 
         return genre
-
-    async def _get_genre_from_elastic(self, genre_id: str) -> GenreEs | None:
-        try:
-            doc = await self.elastic.get(index=EsIndex.GENRE, id=genre_id)
-        except NotFoundError:
-            return None
-        return GenreEs(**doc['_source'])
 
     async def _get_genre_from_cache(self, genre_id: str) -> GenreEs | None:
         """Получить персону из кэша."""
@@ -82,6 +79,6 @@ class GenreService(BaseService):
 @lru_cache()
 def get_genre_service(
         redis: Redis = Depends(get_redis),
-        elastic: AsyncElasticsearch = Depends(get_elastic),
+        elastic_service: AsyncElasticService = Depends(get_elastic_service),
 ) -> GenreService:
-    return GenreService(redis, elastic)
+    return GenreService(redis, elastic_service=elastic_service)
