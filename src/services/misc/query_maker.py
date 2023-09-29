@@ -1,5 +1,4 @@
 import abc
-from dataclasses import dataclass
 
 
 class BaseQueryMaker(abc.ABC):
@@ -41,11 +40,10 @@ class FilmQueryMaker(BaseQueryMaker):
         return query
 
 
-@dataclass
 class PersonQueryMaker(BaseQueryMaker):
 
     def __init__(self, name: str | None = None) -> None:
-        self.name = None
+        self.name = name
 
     def get_query(self) -> dict | None:
         query = {'bool': {}}

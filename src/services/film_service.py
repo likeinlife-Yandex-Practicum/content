@@ -1,23 +1,25 @@
 from functools import lru_cache
 
 from fastapi import Depends
-from fastapi.encoders import jsonable_encoder
-from orjson import orjson  # type: ignore
-from redis.asyncio import Redis
 
-from db.redis import get_redis
 from enums import EsIndex
 from models.es.film_es import FilmEs
 
 from .base_service import BaseService
-from .constants import CACHE_EXPIRE_IN_SECONDS
-from .query_maker import FilmQueryMaker
+from .cache_service import (
+    AsyncApiCacheService,
+    AsyncRedisCacheService,
+    get_redis_service,
+)
+from .misc.enums import QueryRoute
+from .misc.query_maker import FilmQueryMaker
 from .search_service import AsyncElasticService, get_elastic_service
 
 
 class FilmService(BaseService):
+    cache_service: AsyncApiCacheService[FilmEs]
 
-    async def get_film_list(
+    async def get_by_query(
         self,
         genre: str | None,
         query: str | None,
@@ -25,9 +27,8 @@ class FilmService(BaseService):
         size: int,
         page: int,
     ) -> list[FilmEs] | None:
-        redis_key = self.generate_redis_key(genre, query, sort, size, page)
-
-        from_cache = await self._get_film_list_from_cache(redis_key)
+        query_parameters = (QueryRoute.FILM_LIST, genre, query, sort, size, page)
+        from_cache = await self.cache_service.get_by_query(query_parameters)
         if from_cache:
             return from_cache
 
@@ -42,11 +43,12 @@ class FilmService(BaseService):
         if not from_es:
             return None
         film_list = [FilmEs(**item) for item in from_es]
-        await self._put_film_list_to_cache(redis_key, film_list)
+
+        await self.cache_service.put_by_query(query_parameters, film_list)
         return film_list
 
     async def get_by_id(self, film_id: str) -> FilmEs | None:
-        from_cache = await self._film_from_cache(film_id)
+        from_cache = await self.cache_service.get_by_id(film_id)
 
         if from_cache:
             return from_cache
@@ -60,42 +62,15 @@ class FilmService(BaseService):
             return None
 
         film = FilmEs(**from_es)
-        await self._put_film_to_cache(film)
+        await self.cache_service.put_by_id(film_id, film)
         return film
-
-    async def _film_from_cache(self, film_id: str) -> FilmEs | None:
-        """Сохранить фильм из кэша."""
-        data = await self.redis.get(film_id)
-        if not data:
-            return None
-        film = FilmEs.parse_raw(data)
-        return film
-
-    async def _put_film_to_cache(self, film: FilmEs):
-        """Сохранить фильм в кэш."""
-        await self.redis.set(str(film.id), film.json(), CACHE_EXPIRE_IN_SECONDS)
-
-    async def _get_film_list_from_cache(self, redis_key: str) -> list[FilmEs] | None:
-        """Получить список фильмов из кэша."""
-        data = await self.redis.get(redis_key)
-        if not data:
-            return None
-        data = orjson.loads(data)
-        film_list = [FilmEs(**item) for item in data]
-        return film_list
-
-    async def _put_film_list_to_cache(self, redis_key: str, film_list: list[FilmEs]):
-        """Сохранить список фильмов в кэш."""
-        await self.redis.set(
-            redis_key,
-            orjson.dumps(jsonable_encoder(film_list)),
-            CACHE_EXPIRE_IN_SECONDS,
-        )
 
 
 @lru_cache()
 def get_film_service(
-        redis: Redis = Depends(get_redis),
+        redis_cache_service: AsyncRedisCacheService = Depends(get_redis_service),
         elastic_service: AsyncElasticService = Depends(get_elastic_service),
 ) -> FilmService:
-    return FilmService(redis, elastic_service=elastic_service)
+    api_cache_service = AsyncApiCacheService(redis_cache_service, FilmEs)
+
+    return FilmService(api_cache_service, elastic_service=elastic_service)

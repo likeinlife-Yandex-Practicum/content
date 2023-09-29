@@ -18,7 +18,7 @@ router = APIRouter()
 )
 async def genre_search(genre_service: GenreService = Depends(get_genre_service)) -> list[GenreShortResponse]:
 
-    _genre_list = await genre_service.get_genre_list()
+    _genre_list = await genre_service.get_by_query()
 
     if not _genre_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')

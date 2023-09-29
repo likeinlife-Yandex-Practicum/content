@@ -24,7 +24,7 @@ async def film_search(
         page_number: Annotated[int, Query(ge=1)] = 1,
         film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShortResponse]:
-    _film_list = await film_service.get_film_list(None, query, None, page_size, page_number)
+    _film_list = await film_service.get_by_query(None, query, None, page_size, page_number)
     if not _film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
 
@@ -78,7 +78,7 @@ async def film_list(
         page_number: Annotated[int, Query(ge=1)] = 1,
         film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShortResponse]:
-    _film_list = await film_service.get_film_list(genre, None, sort, page_size, page_number)
+    _film_list = await film_service.get_by_query(genre, None, sort, page_size, page_number)
     if not _film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
 

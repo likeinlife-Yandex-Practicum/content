@@ -1,19 +1,10 @@
-import hashlib
-from typing import Any
-
-from redis.asyncio import Redis
-
+from .cache_service.api_cache_service import AsyncApiCacheService
 from .search_service import AsyncElasticService
 
 
 class BaseService:
     """Базовый класс сервисов."""
 
-    def __init__(self, redis: Redis, elastic_service: AsyncElasticService):
-        self.redis = redis
+    def __init__(self, cache_service: AsyncApiCacheService, elastic_service: AsyncElasticService):
+        self.cache_service = cache_service
         self.elastic_service = elastic_service
-
-    @staticmethod
-    def generate_redis_key(*args: Any) -> str:
-        """Генерация md5-хеша из значений переданных аргументов."""
-        return hashlib.md5(str(args).encode('utf-8')).hexdigest()

@@ -4,7 +4,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
 from db.elastic import get_elastic
-from services.query_maker import BaseQueryMaker
+from services.misc.query_maker import BaseQueryMaker
 
 
 class AsyncElasticService:

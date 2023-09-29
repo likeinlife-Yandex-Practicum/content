@@ -24,7 +24,7 @@ async def person_search(
         person_service: PersonService = Depends(get_person_service),
 ) -> list[PersonDetailResponse]:
 
-    _person_list = await person_service.get_person_list(query, page_size, page_number)
+    _person_list = await person_service.get_by_query(query, page_size, page_number)
     if not _person_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='persons not found')
 
