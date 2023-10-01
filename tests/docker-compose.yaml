@@ -1,0 +1,72 @@
+version: '3'
+services:
+
+  tests:
+    build: .
+    container_name: tests
+    env_file:
+      - .env
+    entrypoint: pytest ./tests/functional/src
+    depends_on:
+      elastic:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      fastapi-test:
+        condition: service_healthy
+    networks:
+      - test-network
+
+  fastapi-test:
+    build: ../src
+    container_name: fastapi-test
+    healthcheck:
+      test: curl -f 127.0.0.1/api/health || exit 1
+      interval: 2s
+      timeout: 30s
+      retries: 10
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      elastic:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:80"
+    networks:
+      - test-network
+
+  redis:
+    image: redis:latest
+    container_name: redis-test
+    healthcheck:
+      test: redis-cli ping || exit 1
+      interval: 2s
+      timeout: 30s
+      retries: 10
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - test-network
+
+  elastic:
+    image: elasticsearch:8.6.2
+    healthcheck:
+      test: curl -f 127.0.0.1:9200 || exit 1
+      interval: 2s
+      timeout: 30s
+      retries: 10
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1000m -Xmx1000m"
+    ports:
+      - "9200:9200"
+    networks:
+      - test-network
+
+networks:
+  test-network:
