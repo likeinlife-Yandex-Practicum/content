@@ -7,7 +7,7 @@ from db.elastic import get_elastic
 from services.misc.query_maker import BaseQueryMaker
 
 
-class AsyncElasticService:
+class ElasticClient:
 
     def __init__(self, elastic: AsyncElasticsearch) -> None:
         self.elastic = elastic
@@ -59,5 +59,5 @@ class AsyncElasticService:
 
 
 @lru_cache()
-def get_elastic_service(elastic: AsyncElasticsearch = Depends(get_elastic)) -> AsyncElasticService:
-    return AsyncElasticService(elastic=elastic)
+def get_elastic_client(elastic: AsyncElasticsearch = Depends(get_elastic)) -> ElasticClient:
+    return ElasticClient(elastic=elastic)

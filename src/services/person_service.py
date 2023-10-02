@@ -3,21 +3,17 @@ from functools import lru_cache
 from fastapi import Depends
 
 from enums import EsIndex
+from external.cache import ApiCacheAdapter, RedisCacheClient, get_redis_client
+from external.search import ElasticClient, get_elastic_client
 from models.es.person_es import PersonEs
 
 from .base_service import BaseService
-from .cache_service import (
-    AsyncApiCacheService,
-    AsyncRedisCacheService,
-    get_redis_service,
-)
 from .misc.enums import QueryRoute
 from .misc.query_maker import PersonQueryMaker
-from .search_service import AsyncElasticService, get_elastic_service
 
 
 class PersonService(BaseService):
-    cache_service: AsyncApiCacheService[PersonEs]
+    cache_service: ApiCacheAdapter[PersonEs]
 
     async def get_by_query(
         self,
@@ -63,9 +59,9 @@ class PersonService(BaseService):
 
 @lru_cache()
 def get_person_service(
-        redis_cache_service: AsyncRedisCacheService = Depends(get_redis_service),
-        elastic_service: AsyncElasticService = Depends(get_elastic_service),
+        redis_cache_service: RedisCacheClient = Depends(get_redis_client),
+        elastic_service: ElasticClient = Depends(get_elastic_client),
 ) -> PersonService:
-    api_cache_service = AsyncApiCacheService(redis_cache_service, PersonEs)
+    api_cache_service = ApiCacheAdapter(redis_cache_service, PersonEs)
 
     return PersonService(api_cache_service, elastic_service=elastic_service)

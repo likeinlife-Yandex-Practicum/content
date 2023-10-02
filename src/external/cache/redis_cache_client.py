@@ -7,10 +7,10 @@ from redis.asyncio import Redis
 from db.redis import get_redis
 from services.misc.constants import CACHE_EXPIRE_IN_SECONDS
 
-from .base_cache_service import BaseAsyncCacheService
+from .base_cache_client import BaseCacheClient
 
 
-class AsyncRedisCacheService(BaseAsyncCacheService):
+class RedisCacheClient(BaseCacheClient):
 
     def __init__(self, redis: Redis) -> None:
         self.redis = redis
@@ -27,5 +27,5 @@ class AsyncRedisCacheService(BaseAsyncCacheService):
 
 
 @lru_cache()
-def get_redis_service(redis: Redis = Depends(get_redis)) -> AsyncRedisCacheService:
-    return AsyncRedisCacheService(redis)
+def get_redis_client(redis: Redis = Depends(get_redis)) -> RedisCacheClient:
+    return RedisCacheClient(redis)

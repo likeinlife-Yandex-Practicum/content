@@ -6,14 +6,14 @@ from fastapi.encoders import jsonable_encoder
 
 from models.shared.orjson_base_model import OrjsonBaseModel
 
-from .base_cache_service import BaseAsyncCacheService
+from .base_cache_client import BaseCacheClient
 
 M = TypeVar('M', bound=OrjsonBaseModel)
 
 
-class AsyncApiCacheService(Generic[M]):
+class ApiCacheAdapter(Generic[M]):
 
-    def __init__(self, cache_service: BaseAsyncCacheService, model: type[M]) -> None:
+    def __init__(self, cache_service: BaseCacheClient, model: type[M]) -> None:
         self.cache_service = cache_service
         self.model = model
 

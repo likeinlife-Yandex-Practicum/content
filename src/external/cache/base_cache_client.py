@@ -2,7 +2,7 @@ import abc
 from typing import Any
 
 
-class BaseAsyncCacheService(abc.ABC):
+class BaseCacheClient(abc.ABC):
 
     @abc.abstractmethod
     async def get(self, key: Any) -> Any:

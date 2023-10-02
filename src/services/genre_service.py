@@ -3,20 +3,16 @@ from functools import lru_cache
 from fastapi import Depends
 
 from enums import EsIndex
+from external.cache import ApiCacheAdapter, RedisCacheClient, get_redis_client
+from external.search import ElasticClient, get_elastic_client
 from models.es.genre_es import GenreEs
 
 from .base_service import BaseService
-from .cache_service import (
-    AsyncApiCacheService,
-    AsyncRedisCacheService,
-    get_redis_service,
-)
 from .misc.enums import QueryRoute
-from .search_service import AsyncElasticService, get_elastic_service
 
 
 class GenreService(BaseService):
-    cache_service: AsyncApiCacheService[GenreEs]
+    cache_service: ApiCacheAdapter[GenreEs]
 
     async def get_by_query(self) -> list[GenreEs] | None:
         query_params = (QueryRoute.GENRE_LIST,)
@@ -51,9 +47,9 @@ class GenreService(BaseService):
 
 @lru_cache()
 def get_genre_service(
-        redis_cache_service: AsyncRedisCacheService = Depends(get_redis_service),
-        elastic_service: AsyncElasticService = Depends(get_elastic_service),
+        redis_cache_service: RedisCacheClient = Depends(get_redis_client),
+        elastic_service: ElasticClient = Depends(get_elastic_client),
 ) -> GenreService:
-    api_cache_service = AsyncApiCacheService(redis_cache_service, GenreEs)
+    api_cache_service = ApiCacheAdapter(redis_cache_service, GenreEs)
 
     return GenreService(api_cache_service, elastic_service=elastic_service)
