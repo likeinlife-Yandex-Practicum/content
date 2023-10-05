@@ -7,6 +7,8 @@ from models.dto import FilmShortResponse
 from models.dto.film_response import FilmDetailResponse
 from services.film_service import FilmService, get_film_service
 
+from .paginator import Paginator
+
 router = APIRouter()
 
 
@@ -20,11 +22,16 @@ router = APIRouter()
 )
 async def film_search(
         query: str,
-        page_size: Annotated[int, Query(ge=1)] = 50,
-        page_number: Annotated[int, Query(ge=1)] = 1,
+        paginator: Paginator = Depends(),
         film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShortResponse]:
-    _film_list = await film_service.get_by_query(None, query, None, page_size, page_number)
+    _film_list = await film_service.get_by_query(
+        None,
+        query,
+        None,
+        paginator.page_size,
+        paginator.page_number,
+    )
     if not _film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
 
@@ -73,12 +80,17 @@ async def film_details(
 )
 async def film_list(
         genre: str | None = None,
+        paginator: Paginator = Depends(),
         sort: Annotated[str | None, Query(regex='^-?imdb_rating$')] = '-imdb_rating',
-        page_size: Annotated[int, Query(ge=1)] = 50,
-        page_number: Annotated[int, Query(ge=1)] = 1,
         film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShortResponse]:
-    _film_list = await film_service.get_by_query(genre, None, sort, page_size, page_number)
+    _film_list = await film_service.get_by_query(
+        genre,
+        None,
+        sort,
+        paginator.page_size,
+        paginator.page_number,
+    )
     if not _film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
 

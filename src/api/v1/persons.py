@@ -1,10 +1,11 @@
 from http import HTTPStatus
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
 from models.dto import PersonDetailResponse, PersonFilmsResponse
 from services.person_service import PersonService, get_person_service
+
+from .paginator import Paginator
 
 router = APIRouter()
 
@@ -19,12 +20,15 @@ router = APIRouter()
 )
 async def person_search(
         query: str,
-        page_size: Annotated[int, Query(ge=1)] = 50,
-        page_number: Annotated[int, Query(ge=1)] = 1,
+        paginator: Paginator = Depends(),
         person_service: PersonService = Depends(get_person_service),
 ) -> list[PersonDetailResponse]:
 
-    _person_list = await person_service.get_by_query(query, page_size, page_number)
+    _person_list = await person_service.get_by_query(
+        query,
+        paginator.page_size,
+        paginator.page_number,
+    )
     if not _person_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='persons not found')
 
