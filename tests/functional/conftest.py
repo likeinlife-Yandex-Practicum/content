@@ -1,6 +1,7 @@
 import asyncio
 
 import aiohttp
+import aioredis
 import pytest
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
@@ -27,6 +28,14 @@ async def es_client():
     )
     yield client
     await client.close()
+
+
+@pytest_asyncio.fixture(scope='function')
+async def redis_client():
+    redis = await aioredis.from_url(f'redis://{test_settings.redis_host}:{test_settings.redis_port}')
+    await redis.flushall(asynchronous=True)
+    yield redis
+    await redis.close()
 
 
 @pytest_asyncio.fixture(scope='session', autouse=True)
