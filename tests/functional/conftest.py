@@ -5,10 +5,10 @@ import aioredis
 import pytest
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
-
 from functional.settings import test_settings
 from functional.testdata.es_mapping import ES_MAPPING
 from functional.utils.helpers import data_helper
+
 from tests.functional.testdata.enums.es_index import EsIndex
 
 
@@ -24,7 +24,7 @@ async def es_client():
     client = AsyncElasticsearch(
         hosts=f'{test_settings.es_host}:{test_settings.es_port}',
         validate_cert=False,
-        use_ssl=False
+        use_ssl=False,
     )
     yield client
     await client.close()
@@ -68,7 +68,8 @@ async def api_client():
 
 @pytest.fixture
 def make_get_request(api_client):
-    async def inner(url: str, params: dict = None):
+
+    async def inner(url: str, params: dict | None = None):
         url = f'{test_settings.service_url}{url}'
         async with api_client.get(url, params=params) as response:
             return await response.json(), response.status
