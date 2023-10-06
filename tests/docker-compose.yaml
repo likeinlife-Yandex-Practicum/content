@@ -22,7 +22,7 @@ services:
     container_name: fastapi-test
     healthcheck:
       test: curl -f 127.0.0.1/api/health || exit 1
-      interval: 2s
+      interval: 10s
       timeout: 30s
       retries: 10
     restart: always
@@ -43,7 +43,7 @@ services:
     container_name: redis-test
     healthcheck:
       test: redis-cli ping || exit 1
-      interval: 2s
+      interval: 10s
       timeout: 30s
       retries: 10
     restart: always
@@ -56,7 +56,7 @@ services:
     image: elasticsearch:8.6.2
     healthcheck:
       test: curl -f 127.0.0.1:9200 || exit 1
-      interval: 2s
+      interval: 10s
       timeout: 30s
       retries: 10
     environment:
