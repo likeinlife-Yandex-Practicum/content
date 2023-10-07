@@ -2,7 +2,8 @@ import pytest
 from pydantic import parse_obj_as
 
 from models.dto import FilmShortResponse
-from tests.old_tests.constants import BASE_URL
+
+from .constants import BASE_URL
 
 ENDPOINT = f'{BASE_URL}/api/v1/films'
 

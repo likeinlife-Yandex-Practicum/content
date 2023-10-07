@@ -41,6 +41,13 @@ http://localhost:80/api/openapi
 # Переменные окружения
 Смотреть .env.example
 
+# task_00: Проведите 2 ревью
+https://github.com/likeinlife/Async_API_sprint_2/pull/14
+https://github.com/likeinlife/Async_API_sprint_2/pull/13
+
+https://github.com/likeinlife/Async_API_sprint_1/pull/17
+https://github.com/likeinlife/Async_API_sprint_1/pull/16
+
 # Дампы elastic
 ETL-процесс сделан в другом репозитории, т.к. это независимые сервисы.
 https://github.com/likeinlife/YA-ETL

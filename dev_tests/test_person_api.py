@@ -3,7 +3,8 @@ from pydantic import parse_obj_as
 
 from models.dto import PersonDetailResponse
 from models.dto.person_response import PersonFilmsResponse
-from tests.old_tests.constants import BASE_URL
+
+from .constants import BASE_URL
 
 ENDPOINT = f'{BASE_URL}/api/v1/persons'
 
