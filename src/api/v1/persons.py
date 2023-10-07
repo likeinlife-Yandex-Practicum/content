@@ -1,6 +1,7 @@
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 
 from models.dto import PersonDetailResponse, PersonFilmsResponse
 from services.person_service import PersonService, get_person_service
@@ -19,11 +20,16 @@ router = APIRouter()
     tags=['Персоны'],
 )
 async def person_search(
-        query: str,
+        query: Annotated[
+            str,
+            Query(
+                title='запрос',
+                description='Поисковое значение'
+            )
+        ],
         paginator: Paginator = Depends(),
         person_service: PersonService = Depends(get_person_service),
 ) -> list[PersonDetailResponse]:
-
     _person_list = await person_service.get_by_query(
         query,
         paginator.page_size,
@@ -48,10 +54,15 @@ async def person_search(
     tags=['Персоны'],
 )
 async def person_details(
-        person_id: str,
+        person_id: Annotated[
+            str,
+            Query(
+                title='идентификатор персоны',
+                description='Идентификатор персоны',
+            )
+        ],
         person_service: PersonService = Depends(get_person_service),
 ) -> PersonDetailResponse:
-
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
@@ -72,10 +83,15 @@ async def person_details(
     tags=['Персоны'],
 )
 async def person_movies(
-        person_id: str,
+        person_id: Annotated[
+            str,
+            Path(
+                title='идентификатор персоны',
+                description='Идентификатор персоны',
+            )
+        ],
         person_service: PersonService = Depends(get_person_service),
 ) -> list[PersonFilmsResponse]:
-
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
