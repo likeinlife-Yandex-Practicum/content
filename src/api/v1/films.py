@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 
 from models.dto import FilmShortResponse
 from models.dto.film_response import FilmDetailResponse
@@ -58,7 +58,13 @@ async def film_search(
     tags=['Фильмы'],
 )
 async def film_details(
-        film_id: str,
+        film_id: Annotated[
+            str,
+            Path(
+                title='идентификатор фильма',
+                description='Идентификатор фильма'
+            )
+        ],
         film_service: FilmService = Depends(get_film_service),
 ) -> FilmDetailResponse:
     film = await film_service.get_by_id(film_id)
