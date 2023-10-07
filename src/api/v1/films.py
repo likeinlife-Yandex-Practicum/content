@@ -21,7 +21,14 @@ router = APIRouter()
     tags=['Фильмы'],
 )
 async def film_search(
-        query: str,
+        query: Annotated[
+            str,
+            Query(
+                alias='query',
+                title='запрос',
+                description='Поисковое значение'
+            )
+        ],
         paginator: Paginator = Depends(),
         film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShortResponse]:
