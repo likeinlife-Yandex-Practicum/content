@@ -56,7 +56,7 @@ async def person_search(
 async def person_details(
         person_id: Annotated[
             str,
-            Query(
+            Path(
                 title='идентификатор персоны',
                 description='Идентификатор персоны',
             )
