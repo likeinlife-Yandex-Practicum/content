@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path
 
 from models.dto import GenreDetailResponse, GenreShortResponse
 from services.genre_service import GenreService, get_genre_service
@@ -41,7 +41,7 @@ async def genre_search(genre_service: GenreService = Depends(get_genre_service))
 async def genre_details(
         genre_id: Annotated[
             str,
-            Query(
+            Path(
                 title='идентификатор жанра',
                 description='Идентификатор жанра',
             )
