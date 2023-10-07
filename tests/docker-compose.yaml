@@ -5,7 +5,7 @@ services:
     build: .
     container_name: tests
     env_file:
-      - .env
+      - .test.env
     entrypoint: pytest ./tests/functional/src
     depends_on:
       elastic:
@@ -27,7 +27,7 @@ services:
       retries: 10
     restart: always
     env_file:
-      - .env
+      - .test.env
     depends_on:
       elastic:
         condition: service_healthy

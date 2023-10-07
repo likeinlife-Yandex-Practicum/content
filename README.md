@@ -30,8 +30,7 @@
 - make downv - удалить созданные контейнеры, включая volumes
 
 # Тестирование
-- pip install pytest requests
-- pytest -v -l ./tests
+- make test
 
 # Адрес api
 http://localhost:80
