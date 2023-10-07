@@ -92,9 +92,22 @@ async def film_details(
     tags=['Фильмы'],
 )
 async def film_list(
-        genre: str | None = None,
+        genre: Annotated[
+            str | None,
+            Query(
+                title='идентификатор жанра',
+                description='Идентификатор жанра для фильтрации списка фильмов'
+            )
+        ] = None,
+        sort: Annotated[
+            str | None,
+            Query(
+                regex='^-?imdb_rating$',
+                title='сортировка по рейтингу',
+                description='Сортировка списка фильмов по рейтингу',
+            )
+        ] = '-imdb_rating',
         paginator: Paginator = Depends(),
-        sort: Annotated[str | None, Query(regex='^-?imdb_rating$')] = '-imdb_rating',
         film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShortResponse]:
     _film_list = await film_service.get_by_query(
