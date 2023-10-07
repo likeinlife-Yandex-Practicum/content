@@ -1,9 +1,22 @@
-from typing import Annotated
-
 from fastapi import Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Paginator(BaseModel):
-    page_size: Annotated[int, Query(ge=1, le=250)] = 50
-    page_number: Annotated[int, Query(ge=1)] = 1
+    page_size: int = Field(
+        Query(
+            default=50,
+            title='размер страницы',
+            description='Количество записей на странице',
+            ge=1,
+            le=250
+        )
+    )
+
+    page_number: int = Field(
+        Query(
+            default=1,
+            title='номер страницы',
+            description='Порядковый номер страницы',
+            ge=1)
+    )
