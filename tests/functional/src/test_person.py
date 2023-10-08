@@ -7,8 +7,10 @@ from functional.testdata.enums.end_point import EndPoint
 from functional.testdata.enums.query_route import QueryRoute
 from functional.utils.helpers import data_helper
 
+# All test coroutines will be treated as marked.
+pytestmark = pytest.mark.asyncio
 
-@pytest.mark.asyncio
+
 @pytest.mark.parametrize(
     ('person_id', 'expected_status', 'expected_response'),
     (
@@ -17,10 +19,10 @@ from functional.utils.helpers import data_helper
     ),
 )
 async def test_get_person_by_id(
-    make_get_request,
-    person_id,
-    expected_status,
-    expected_response,
+        make_get_request,
+        person_id,
+        expected_status,
+        expected_response,
 ):
     """Получение детальной информации о персоне."""
     response, status = await make_get_request(f'{EndPoint.PERSON}/{person_id}')
@@ -29,7 +31,6 @@ async def test_get_person_by_id(
     assert response == expected_response
 
 
-@pytest.mark.asyncio
 async def test_get_person_films(make_get_request):
     """Получение фильмов по персоне."""
     person_id = '01377f6d-9767-48ce-9e37-3c81f8a3c739'
@@ -46,14 +47,13 @@ async def test_get_person_films(make_get_request):
         ('jack', 50, 100, HTTPStatus.NOT_FOUND, person_data.PERSON_SEARCH_NOT_FOUND),
     ),
 )
-@pytest.mark.asyncio
 async def test_search_persons_by_query(
-    make_get_request,
-    query,
-    page_size,
-    page_number,
-    expected_status,
-    expected_response,
+        make_get_request,
+        query,
+        page_size,
+        page_number,
+        expected_status,
+        expected_response,
 ):
     """Поиск персон по имени."""
     params = {
@@ -67,7 +67,6 @@ async def test_search_persons_by_query(
     assert response == expected_response
 
 
-@pytest.mark.asyncio
 async def test_search_persons_cache(make_get_request, redis_client):
     """Проверка получения персон по имени из кэша."""
     params = {
@@ -92,7 +91,6 @@ async def test_search_persons_cache(make_get_request, redis_client):
     assert cache_value[0]['name'] == person_data.PERSON_SEARCH_FROM_CACHE[0]['name']
 
 
-@pytest.mark.asyncio
 async def test_get_person_cache(make_get_request, redis_client):
     """Проверка получения персоны по id из кэша."""
     person_id = '035c4793-4864-45b8-8d4f-b86b454c60b0'

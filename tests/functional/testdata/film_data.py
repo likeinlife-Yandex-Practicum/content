@@ -146,24 +146,20 @@ FILM_LIST_BY_GENRE_PUT_TO_CACHE = [
 ]
 
 FILM_LIST_BY_TITLE_GOT_FROM_CACHE = [
-    {'id': '1eb9cc6b-879f-4160-8971-918ecbe47a87',
-     'title': 'Star',
-     'imdb_rating': 7.7,
-     'description': 'The Driver now carries an arrogant rock star who is visiting a major city (not Pittsburgh as '
-                    'earlier believed). Played by Madonna, this title character wants to get away from her '
-                    "bodyguards in the Driver's BMW. He soon gets tired of her and decides to have a bit of fun.",
-     'genre': [{'id': '3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff', 'name': 'Action'},
-               {'id': '5373d043-3f41-4ea8-9947-4b746c601bbd', 'name': 'Comedy'},
+    {'id': 'b164fef5-0867-46d8-b635-737e1721f6bf',
+     'title': 'Tar with a Star',
+     'imdb_rating': 6.7,
+     'description': '',
+     'genre': [{'id': '0b105f87-e0a5-45dc-8ce7-f8632088f390', 'name': 'Western'},
+               {'id': '6a0a479b-cfec-41ac-b520-41b2b007b611', 'name': 'Animation'},
                {'id': 'a886d0ec-c3f3-4b16-b973-dedcf5bfa395', 'name': 'Short'}],
-     'directors': [{'id': '0ec9b6a8-27f9-47b2-8a51-15ae7a1a136d', 'name': 'Guy Ritchie'}],
-     'actors': [{'id': '077ade46-00a6-4199-8c7a-43a84733b8ef', 'name': 'DTeflon'},
-                {'id': '7a22eed2-50af-4e4d-aae8-6eee6cd27e07', 'name': 'Clive Owen'},
-                {'id': '8ab1b385-c186-463b-8d97-30e67492aa60', 'name': 'Michael Beattie'},
-                {'id': 'a35bd08b-acf0-4701-a967-92a0ca61ce62', 'name': 'Toru Tanaka Jr.'}],
-     'writers': [{'id': '0ec9b6a8-27f9-47b2-8a51-15ae7a1a136d', 'name': 'Guy Ritchie'},
-                 {'id': '261894a1-bbf6-4779-bd88-c121fdab661c', 'name': 'Joe Sweet'}]
-     }
-]
+     'directors': [{'id': '3138e609-870f-4764-9a57-97d39feef7a8', 'name': 'Bill Tytla'},
+                   {'id': '96f18d84-55e0-4718-b87f-4a9e63544d76', 'name': 'George Germanetti'}],
+     'actors': [{'id': '2e01e457-f993-4bfe-87c3-de2ef8626cc7', 'name': 'Mae Questel'},
+                {'id': '448b9382-f235-478b-a013-d127f421ea4a', 'name': 'Jackson Beck'},
+                {'id': '89d4622f-5dde-4257-9401-36e3052de105', 'name': 'Jack Mercer'}],
+     'writers': [{'id': '89d4622f-5dde-4257-9401-36e3052de105', 'name': 'Jack Mercer'},
+                 {'id': 'cb7d11c1-9041-4bf5-84b2-728847bbf035', 'name': 'Carl Meyer'}]}]
 
 FILM_LIST_BY_TITLE_PUT_TO_CACHE = [
     {'id': 'f89b06b2-399f-4020-9a96-ee8e95d13d88',

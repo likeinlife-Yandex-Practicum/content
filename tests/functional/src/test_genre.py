@@ -5,8 +5,10 @@ import pytest
 from functional.testdata import genre_data
 from functional.testdata.enums.end_point import EndPoint
 
+# All test coroutines will be treated as marked.
+pytestmark = pytest.mark.asyncio
 
-@pytest.mark.asyncio
+
 @pytest.mark.parametrize(
     (
         'genre_id',
@@ -27,10 +29,10 @@ from functional.testdata.enums.end_point import EndPoint
     ),
 )
 async def test_get_genre_by_id(
-    make_get_request,
-    genre_id,
-    expected_status,
-    expected_response,
+        make_get_request,
+        genre_id,
+        expected_status,
+        expected_response,
 ):
     """Получение детальной информации о жанре."""
     response, status = await make_get_request(f'{EndPoint.GENRES}/{genre_id}')
@@ -39,10 +41,9 @@ async def test_get_genre_by_id(
     assert response == expected_response
 
 
-@pytest.mark.asyncio
 async def test_get_genre_by_id_from_cache(
-    make_get_request,
-    redis_client,
+        make_get_request,
+        redis_client,
 ):
     """Получение жанра из кэша."""
     genre_id = '0b105f87-e0a5-45dc-8ce7-f8632088f390'
@@ -55,7 +56,6 @@ async def test_get_genre_by_id_from_cache(
     assert cache_value['description'] == genre_data.GENRE_DETAIL_DATA['description']
 
 
-@pytest.mark.asyncio
 async def test_get_genres(make_get_request):
     """Получение списка жанров."""
     expected_status = HTTPStatus.OK

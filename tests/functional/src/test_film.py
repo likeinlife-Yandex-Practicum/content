@@ -10,8 +10,10 @@ from functional.testdata.film_data import (DETAILED_FILM_DATA, DETAILED_FILM_DAT
                                            DETAILED_FILM_DATA_GOT_FROM_CACHE)
 from functional.utils.helpers import data_helper
 
+# All test coroutines will be treated as marked.
+pytestmark = pytest.mark.asyncio
 
-@pytest.mark.asyncio
+
 async def test_get_film_by_id(make_get_request):
     """Получение детальной информации о фильме."""
     film_id = 'cddf9b8f-27f9-4fe9-97cb-9e27d4fe3394'
@@ -23,7 +25,6 @@ async def test_get_film_by_id(make_get_request):
     assert body == DETAILED_FILM_DATA
 
 
-@pytest.mark.asyncio
 async def test_film_by_id_is_put_to_cache(redis_client, make_get_request):
     """Проверка сохранения данных в кэш Redis по id фильма."""
     film_id = 'c20959d2-daca-4cb2-a104-e1ab63479da3'
@@ -35,7 +36,6 @@ async def test_film_by_id_is_put_to_cache(redis_client, make_get_request):
     assert json.loads(cache_value) == film_data, 'No film in cache'
 
 
-@pytest.mark.asyncio
 async def test_film_by_id_is_got_from_cache(redis_client, make_get_request):
     """Проверка получения данных из кэша Redis по id фильма."""
     expected_status = http.HTTPStatus.OK
@@ -48,7 +48,6 @@ async def test_film_by_id_is_got_from_cache(redis_client, make_get_request):
     assert body == film_data
 
 
-@pytest.mark.asyncio
 async def test_get_film_by_id_empty_result(make_get_request):
     """Получение детальной информации о фильме. Пустой результат поиска."""
     film_id = 'be823372-d799-4a87-a53c-bff76bb24c7b'
@@ -61,7 +60,6 @@ async def test_get_film_by_id_empty_result(make_get_request):
     assert body == expected_body
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param(make_get_request):
     """Фильтрация списка фильмов по жанру."""
     payload = {
@@ -77,7 +75,6 @@ async def test_filter_by_genre_param(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_empty_result(make_get_request):
     """Фильтрация списка фильмов по жанру. Пустой результат поиска."""
     payload = {
@@ -92,7 +89,6 @@ async def test_filter_by_genre_param_empty_result(make_get_request):
     assert body == expected_body
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_sorting_desc(make_get_request):
     """Фильтрации списка фильмов по жанру с сортировкой по рейтингу DESC."""
     payload = {
@@ -109,7 +105,6 @@ async def test_filter_by_genre_param_with_sorting_desc(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_sorting_asc(make_get_request):
     """Фильтрация списка фильмов по жанру с сортировкой по рейтингу ASC."""
     payload = {
@@ -126,7 +121,6 @@ async def test_filter_by_genre_param_with_sorting_asc(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_page_size(make_get_request):
     """Фильтрация списка фильмов по жанру с указанием числа результатов на странице."""
     payload = {
@@ -142,7 +136,6 @@ async def test_filter_by_genre_param_with_page_size(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_page_number(make_get_request):
     """Фильтрация списка фильмов по жанру с указанием номера страницы."""
     payload = {
@@ -159,7 +152,6 @@ async def test_filter_by_genre_param_with_page_number(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_all_params(make_get_request):
     """Фильтрации списка фильмов по жанру с всеми параметрами."""
     payload = {
@@ -178,7 +170,6 @@ async def test_filter_by_genre_param_with_all_params(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize('sort_value', [
     '+imdb_rating',
     'imdb_rating-'
@@ -209,7 +200,6 @@ async def test_filter_by_genre_sort_param_validation(make_get_request, sort_valu
     assert body == expected_body
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_all_params_is_put_cache(redis_client, make_get_request):
     """Проверка сохранения данных в кэш Redis по набору параметров."""
     payload = {
@@ -244,7 +234,6 @@ async def test_filter_by_genre_param_with_all_params_is_put_cache(redis_client, 
     assert cache_film_data[0]['writers'] == film_data[0]['writers']
 
 
-@pytest.mark.asyncio
 async def test_filter_by_genre_param_with_all_params_got_from_cache(redis_client, make_get_request):
     """Проверка получения данных из кэша Redis по набору параметров."""
     payload = {

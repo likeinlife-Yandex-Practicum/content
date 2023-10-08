@@ -8,8 +8,10 @@ from functional.testdata.enums.query_route import QueryRoute
 from functional.testdata.film_data import FILM_LIST_BY_TITLE_GOT_FROM_CACHE, FILM_LIST_BY_TITLE_PUT_TO_CACHE
 from functional.utils.helpers import data_helper
 
+# All test coroutines will be treated as marked.
+pytestmark = pytest.mark.asyncio
 
-@pytest.mark.asyncio
+
 async def test_search_with_by_title(make_get_request):
     """Поиск фильма по части названия."""
     payload = {'query': 'The Star'}
@@ -21,7 +23,6 @@ async def test_search_with_by_title(make_get_request):
     assert len(body) == expected_answer['length']
 
 
-@pytest.mark.asyncio
 async def test_search_film_by_title_empty_result(make_get_request):
     """Поиск фильма по части названия. Пустой результат поиска."""
     payload = {'query': 'asdlkjsaopfj222as'}
@@ -34,7 +35,6 @@ async def test_search_film_by_title_empty_result(make_get_request):
     assert body == expected_body
 
 
-@pytest.mark.asyncio
 async def test_search_film_by_title_with_page_size(make_get_request):
     """Поиск фильма по части названия указанием числа результатов на странице."""
     payload = {
@@ -50,7 +50,6 @@ async def test_search_film_by_title_with_page_size(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_search_film_by_title_with_page_number(make_get_request):
     """Поиск фильма по части названия указанием номера страницы."""
     payload = {
@@ -67,7 +66,6 @@ async def test_search_film_by_title_with_page_number(make_get_request):
     assert len(body) == expected_length
 
 
-@pytest.mark.asyncio
 async def test_search_film_by_all_params_is_put_to_cache(redis_client, make_get_request):
     """Проверка сохранения данных в кэш Redis по набору параметров."""
     payload = {
@@ -102,7 +100,6 @@ async def test_search_film_by_all_params_is_put_to_cache(redis_client, make_get_
     assert cache_film_data[0]['writers'] == film_data[0]['writers']
 
 
-@pytest.mark.asyncio
 async def test_search_film_by_all_params_is_got_from_cache(redis_client, make_get_request):
     """Проверка получения данных из кэша Redis по набору параметров."""
     payload = {
