@@ -4,7 +4,11 @@ from fastapi import Depends
 
 from enums import EsIndex
 from external.cache import ApiCacheAdapter, RedisCacheClient, get_redis_client
-from external.search import ElasticClient, get_elastic_client
+from external.search import (
+    ApiSearchAdapter,
+    ElasticSearchClient,
+    get_elastic_client,
+)
 from models.es.person_es import PersonEs
 
 from .base_service import BaseService
@@ -13,7 +17,8 @@ from .misc.query_maker import PersonQueryMaker
 
 
 class PersonService(BaseService):
-    cache_service: ApiCacheAdapter[PersonEs]
+    cache_adapter: ApiCacheAdapter[PersonEs]
+    search_adapter: ApiSearchAdapter[PersonEs]
 
     async def get_by_query(
         self,
@@ -23,45 +28,44 @@ class PersonService(BaseService):
     ) -> list[PersonEs] | None:
         query_parameters = (QueryRoute.PERSON_LIST, query, size, page)
 
-        from_cache = await self.cache_service.get_by_query(query_parameters)
+        from_cache = await self.cache_adapter.get_by_query(query_parameters)
 
         if from_cache:
             return from_cache
 
         query_maker = PersonQueryMaker(query)
-        person_es_response = await self.elastic_service.get_by_query(
-            index=EsIndex.PERSON,
+        from_es = await self.search_adapter.get_by_query(
+            index_=EsIndex.PERSON,
             query_maker=query_maker,
             size=size,
             page=page,
         )
-        if not person_es_response:
+        if not from_es:
             return None
 
-        person_list = [PersonEs(**item) for item in person_es_response]
-        await self.cache_service.put_by_query(query_parameters, person_list)
-        return person_list
+        await self.cache_adapter.put_by_query(query_parameters, from_es)
+        return from_es
 
     async def get_by_id(self, person_id: str) -> PersonEs | None:
-        from_cache = await self.cache_service.get_by_id(person_id)
+        from_cache = await self.cache_adapter.get_by_id(person_id)
         if from_cache:
             return from_cache
-        from_es = await self.elastic_service.get_by_id(_id=person_id, index=EsIndex.PERSON)
+        from_es = await self.search_adapter.get_by_id(id_=person_id, index_=EsIndex.PERSON)
 
         if not from_es:
             return None
 
-        person = PersonEs(**from_es)
-        await self.cache_service.put_by_id(person_id, person)
+        await self.cache_adapter.put_by_id(person_id, from_es)
 
-        return person
+        return from_es
 
 
 @lru_cache()
 def get_person_service(
-        redis_cache_service: RedisCacheClient = Depends(get_redis_client),
-        elastic_service: ElasticClient = Depends(get_elastic_client),
+        cache_client: RedisCacheClient = Depends(get_redis_client),
+        search_client: ElasticSearchClient = Depends(get_elastic_client),
 ) -> PersonService:
-    api_cache_service = ApiCacheAdapter(redis_cache_service, PersonEs)
+    cache_adapter = ApiCacheAdapter(cache_client, PersonEs)
+    search_adapter = ApiSearchAdapter(search_client, PersonEs)
 
-    return PersonService(api_cache_service, elastic_service=elastic_service)
+    return PersonService(cache_adapter, search_adapter=search_adapter)

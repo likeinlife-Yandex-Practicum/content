@@ -4,7 +4,11 @@ from fastapi import Depends
 
 from enums import EsIndex
 from external.cache import ApiCacheAdapter, RedisCacheClient, get_redis_client
-from external.search import ElasticClient, get_elastic_client
+from external.search import (
+    ApiSearchAdapter,
+    ElasticSearchClient,
+    get_elastic_client,
+)
 from models.es.genre_es import GenreEs
 
 from .base_service import BaseService
@@ -12,44 +16,43 @@ from .misc.enums import QueryRoute
 
 
 class GenreService(BaseService):
-    cache_service: ApiCacheAdapter[GenreEs]
+    cache_adapter: ApiCacheAdapter[GenreEs]
+    search_adapter: ApiSearchAdapter[GenreEs]
 
     async def get_by_query(self) -> list[GenreEs] | None:
         query_params = (QueryRoute.GENRE_LIST,)
 
-        from_cache = await self.cache_service.get_by_query(query_params)
+        from_cache = await self.cache_adapter.get_by_query(query_params)
         if from_cache:
             return from_cache
 
-        genre_es_response = await self.elastic_service.get_by_query(index=EsIndex.GENRE, size=100)
-        if not genre_es_response:
-            return None
-
-        genre_list = [GenreEs(**item) for item in genre_es_response]
-        await self.cache_service.put_by_query(query_params, genre_list)
-        return genre_list
-
-    async def get_by_id(self, genre_id: str) -> GenreEs | None:
-        from_cache = await self.cache_service.get_by_id(genre_id)
-        if from_cache:
-            return from_cache
-
-        from_es = await self.elastic_service.get_by_id(_id=genre_id, index=EsIndex.GENRE)
+        from_es = await self.search_adapter.get_by_query(index_=EsIndex.GENRE, size=100)
         if not from_es:
             return None
 
-        genre = GenreEs(**from_es)
+        await self.cache_adapter.put_by_query(query_params, from_es)
+        return from_es
 
-        await self.cache_service.put_by_id(genre_id, genre)
+    async def get_by_id(self, genre_id: str) -> GenreEs | None:
+        from_cache = await self.cache_adapter.get_by_id(genre_id)
+        if from_cache:
+            return from_cache
 
-        return genre
+        from_es = await self.search_adapter.get_by_id(id_=genre_id, index_=EsIndex.GENRE)
+        if not from_es:
+            return None
+
+        await self.cache_adapter.put_by_id(genre_id, from_es)
+
+        return from_es
 
 
 @lru_cache()
 def get_genre_service(
-        redis_cache_service: RedisCacheClient = Depends(get_redis_client),
-        elastic_service: ElasticClient = Depends(get_elastic_client),
+        cache_client: RedisCacheClient = Depends(get_redis_client),
+        search_client: ElasticSearchClient = Depends(get_elastic_client),
 ) -> GenreService:
-    api_cache_service = ApiCacheAdapter(redis_cache_service, GenreEs)
+    cache_adapter = ApiCacheAdapter(cache_client, GenreEs)
+    search_adapter = ApiSearchAdapter(search_client, GenreEs)
 
-    return GenreService(api_cache_service, elastic_service=elastic_service)
+    return GenreService(cache_adapter, search_adapter=search_adapter)
