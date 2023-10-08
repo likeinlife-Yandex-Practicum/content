@@ -16,8 +16,6 @@ class TestSettings(BaseSettings):
     redis_host: str = Field('127.0.0.1', env='REDIS_HOST')
     redis_port: str = Field(6379, env='REDIS_PORT')
 
-    wait_time: int = Field(60, env='WAIT_TIME')
-
     class Config:
         env_file = '.env'
 

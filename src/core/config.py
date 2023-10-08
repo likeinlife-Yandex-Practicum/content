@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     logging_level: str = Field('INFO')
     console_logging_level: str = Field('DEBUG')
+    backoff_max_time: float = Field(5.0)
 
     class Config:
         env_file = '.env'

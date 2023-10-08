@@ -29,7 +29,7 @@ class PersonService(BaseService):
             return from_cache
 
         query_maker = PersonQueryMaker(query)
-        person_es_response = await self.elastic_service.get_list(
+        person_es_response = await self.elastic_service.get_by_query(
             index=EsIndex.PERSON,
             query_maker=query_maker,
             size=size,

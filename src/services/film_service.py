@@ -29,7 +29,7 @@ class FilmService(BaseService):
             return from_cache
 
         query_maker = FilmQueryMaker(genre_id=genre, title=query)
-        from_es = await self.elastic_service.get_list(
+        from_es = await self.elastic_service.get_by_query(
             index=EsIndex.MOVIE,
             query_maker=query_maker,
             sort=sort,

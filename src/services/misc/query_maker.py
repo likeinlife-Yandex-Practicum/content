@@ -17,11 +17,16 @@ class FilmQueryMaker(BaseQueryMaker):
     def get_query(self) -> dict | None:
         query = {'bool': {}}
         if self.title:
-            match = {'match': {'title': self.title}}
-        else:
-            match = {'match_all': {}}
-
-        query['bool'].update({'must': [match]})
+            query['bool'].update({
+                'should': {
+                    'match': {
+                        'title': {
+                            'query': self.title,
+                            'fuzziness': 'auto',
+                        }
+                    }
+                },
+            })
 
         if self.genre_id:
             query['bool'].update({
@@ -30,7 +35,7 @@ class FilmQueryMaker(BaseQueryMaker):
                         'path': 'genre',
                         'query': {
                             'term': {
-                                'genre.id': self.genre_id
+                                'genre.id': self.genre_id,
                             }
                         }
                     }

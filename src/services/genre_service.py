@@ -21,7 +21,7 @@ class GenreService(BaseService):
         if from_cache:
             return from_cache
 
-        genre_es_response = await self.elastic_service.get_list(index=EsIndex.GENRE, size=100)
+        genre_es_response = await self.elastic_service.get_by_query(index=EsIndex.GENRE, size=100)
         if not genre_es_response:
             return None
 

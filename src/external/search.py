@@ -1,8 +1,10 @@
 from functools import lru_cache
 
+import backoff
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
+from core.config import settings
 from db.elastic import get_elastic
 from services.misc.query_maker import BaseQueryMaker
 
@@ -12,6 +14,7 @@ class ElasticClient:
     def __init__(self, elastic: AsyncElasticsearch) -> None:
         self.elastic = elastic
 
+    @backoff.on_exception(backoff.expo, Exception, max_time=settings.backoff_max_time)
     async def get_by_id(
         self,
         _id: str,
@@ -23,7 +26,8 @@ class ElasticClient:
             return None
         return doc['_source']
 
-    async def get_list(
+    @backoff.on_exception(backoff.expo, Exception, max_time=settings.backoff_max_time)
+    async def get_by_query(
         self,
         index: str,
         query_maker: BaseQueryMaker | None = None,
