@@ -1,4 +1,6 @@
-# Async API Sprint 1
+# Описание
+
+Async API сервис для получения контента: жанры, персоны, фильмы.
 
 # Авторы
 * [@likeinlife](https://github.com/likeinlife)
@@ -8,6 +10,7 @@
 
 - ETL (submodule)
 - API
+- Сервис, тесты: жанры, персоны
 
 # Вклад @maxim-zaitsev
 
